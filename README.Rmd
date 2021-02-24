@@ -1,16 +1,18 @@
-Early Course Evaluation - STA 418/518
-================
+---
+title: "Early Course Evaluation - STA 418/518"
+output: github_document
+---
 
 ## Preparing R
 
-``` r
+```{r load-packages, message = FALSE}
 library(tidyverse)
 library(RColorBrewer)
 library(tidytext)
 library(ggwordcloud)
 ```
 
-``` r
+```{r load-data, message = FALSE}
 # DO NOT RUN
 # 
 # sta518_evals <- googlesheets4::read_sheet("1N1FjCUVMrn4gx958wnCKLkLGPi5mrtpUCD4aIl_RsaE")
@@ -20,7 +22,7 @@ library(ggwordcloud)
 sta518_evals <- read_csv(here::here("data", "sta518_evals.csv"))
 ```
 
-``` r
+```{r likert-questions}
 likert_scale <- c("Strongly disagree", "Moderately disagree", "Slightly disagree",
                   "Slightly agree", "Moderately agree", "Strongly agree")
 
@@ -32,9 +34,10 @@ likert_info <- tibble(
 )
 ```
 
+
 ## Course Response Breakdown
 
-``` r
+```{r class-responses}
 sta518_evals %>% 
   select(course = starts_with("In ")) %>% 
   ggplot(aes(y = course)) +
@@ -42,11 +45,9 @@ sta518_evals %>%
   theme_bw()
 ```
 
-![](README_files/figure-gfm/class-responses-1.png)<!-- -->
-
 ## Course Design
 
-``` r
+```{r restructure-course-design}
 # Rel freq table by likert response
 course_design_summary <- sta518_evals %>% 
   select(starts_with("Course")) %>% 
@@ -56,11 +57,7 @@ course_design_summary <- sta518_evals %>%
   group_by(item, response) %>% 
   summarise(freq = n()) %>% 
   mutate(perc = freq / sum(freq) * 100)
-```
 
-    ## `summarise()` has grouped output by 'item'. You can override using the `.groups` argument.
-
-``` r
 # Add color column
 course_design <- course_design_summary %>% 
   left_join(likert_info, by = c("response" = "scale"))
@@ -89,13 +86,14 @@ ggplot() +
                       breaks = likert_pallet, guide = "legend",
                       drop = FALSE) +
   theme_bw()
+
+
 ```
 
-![](README_files/figure-gfm/restructure-course-design-1.png)<!-- -->
 
 ## Instructor
 
-``` r
+```{r instructor-restructor}
 instructor_summary <- sta518_evals %>% 
   select(starts_with("Instructor")) %>% 
   mutate_all(~factor(., levels = likert_scale)) %>% 
@@ -104,11 +102,7 @@ instructor_summary <- sta518_evals %>%
   group_by(item, response) %>% 
   summarise(freq = n()) %>% 
   mutate(perc = round(freq / sum(freq) * 100, 1))
-```
 
-    ## `summarise()` has grouped output by 'item'. You can override using the `.groups` argument.
-
-``` r
 instructor <- instructor_summary %>% 
   select(-freq) %>% 
   left_join(likert_info, by = c("response" = "scale"))
@@ -135,13 +129,10 @@ ggplot() +
   theme_bw()
 ```
 
-![](README_files/figure-gfm/instructor-restructor-1.png)<!-- -->
-
 ## Free response
 
 ### What has been the best aspect of this course so far?
-
-``` r
+```{r best-data, eval=TRUE, message = FALSE}
 best <- sta518_evals %>% 
   select(best = starts_with("What as")) %>% 
   mutate(individual = row_number()) %>% 
@@ -167,7 +158,7 @@ best_cleaned <- best_filtered %>%
 best_cleaned <- bind_rows(best_sing, best_cleaned)
 ```
 
-``` r
+```{r best-plot, eval=TRUE, fig.height=6}
 best_cleaned %>%
   count(bigram, sort = TRUE) %>%
   filter(n > 2) %>% 
@@ -177,11 +168,9 @@ best_cleaned %>%
   theme_bw()
 ```
 
-![](README_files/figure-gfm/best-plot-1.png)<!-- -->
-
 ### If there was one thing about this course that you would change?
 
-``` r
+```{r change-data, eval=TRUE, message = FALSE}
 change <- sta518_evals %>% 
   select(change = starts_with("If there")) %>% 
   mutate(individual = row_number()) %>% 
@@ -207,7 +196,7 @@ change_cleaned <- change_filtered %>%
 change_cleaned <- bind_rows(change_sing, change_cleaned)
 ```
 
-``` r
+```{r change-plot, eval=TRUE, fig.height=6}
 change_cleaned %>%
   count(bigram, sort = TRUE) %>%
   filter(n > 2) %>% 
@@ -217,11 +206,9 @@ change_cleaned %>%
   theme_bw()
 ```
 
-![](README_files/figure-gfm/change-plot-1.png)<!-- -->
-
 ### What is one thing that you can do differently to improve your learning?
 
-``` r
+```{r improve-data, eval=TRUE, message = FALSE}
 improve <- sta518_evals %>% 
   select(differently = starts_with("What is")) %>% 
   mutate(individual = row_number()) %>% 
@@ -246,7 +233,7 @@ improve_cleaned <- improve_filtered %>%
 improve_cleaned <- bind_rows(improve_sing, improve_cleaned)
 ```
 
-``` r
+```{r improve-plot, eval=TRUE, fig.height=6}
 improve_cleaned %>%
   count(bigram, sort = TRUE) %>%
   filter(n > 2) %>% 
@@ -256,4 +243,28 @@ improve_cleaned %>%
   theme_bw()
 ```
 
-![](README_files/figure-gfm/improve-plot-1.png)<!-- -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
